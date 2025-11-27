@@ -14,7 +14,22 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+// API GET IN WEBSITE
+// Public API: list products for a category
+Route::get('/categories/{category}/products', [App\Http\Controllers\ProductionsController::class, 'index_category'])->name('categories.products');
+
+// Public API: list products for a collection
+Route::get('/collections/{collection}/products', [App\Http\Controllers\ProductionsController::class, 'index_collection'])->name('collections.products');
+
+// Public API: list products by it's colors
+Route::get('/products-by-color/{id}', [App\Http\Controllers\ProductionsController::class, 'get_products_by_color'])->name('products.by.color');
+
+// Public API: get reviews for a product
+Route::get('/products-reviews/{id}', [App\Http\Controllers\ProductionsController::class, 'get_reviews'])->name('products.reviews');
 
