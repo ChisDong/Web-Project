@@ -33,3 +33,11 @@ Route::get('/products-by-color/{id}', [App\Http\Controllers\ProductionsControlle
 // Public API: get reviews for a product
 Route::get('/products-reviews/{id}', [App\Http\Controllers\ProductionsController::class, 'get_reviews'])->name('products.reviews');
 
+// Public API: get highlights for a product
+Route::get('/products-highlights/{id}', [App\Http\Controllers\ProductionsController::class, 'get_highlights'])->name('products.highlights');
+
+// Public API: get faqs for a product
+Route::get('/products-faqs/{id}', [App\Http\Controllers\ProductionsController::class, 'get_faqs'])->name('products.faqs');
+
+// Public API: get images for a product
+Route::get('/products-images/{id}', [App\Http\Controllers\ProductionsController::class, 'get_images'])->name('products.images');

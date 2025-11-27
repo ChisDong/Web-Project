@@ -59,4 +59,31 @@ class ProductionsController extends Controller
         'reviews'     => $products->reviews,
        ]);
    }
+
+   public function get_images($id){
+       $products = Product::with('images')->findOrFail($id);
+       return response()->json([
+        'status'      => 'success',
+        'product_id'  => $products->id,
+        'images'     => $products->images,
+       ]);
+   }
+
+   public function get_highlights($id){
+       $products = Product::with('highlights')->findOrFail($id);
+       return response()->json([
+        'status'      => 'success',
+        'product_id'  => $products->id,
+        'highlights'  => $products->highlights,
+       ]);
+   }
+
+    public function get_faqs($id){
+         $products = Product::with('faqs')->findOrFail($id);
+         return response()->json([
+          'status'      => 'success',
+          'product_id'  => $products->id,
+          'faqs'        => $products->faqs,
+         ]);
+    }
 }
