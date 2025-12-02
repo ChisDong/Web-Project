@@ -8,7 +8,14 @@ use App\Models\Collection;
 use App\Models\ProductColor;
 use App\Models\Product;
 use App\Models\ProductReview;
-
+use App\Http\Requests\ProductRequest;
+use App\Models\ProductImage;
+use App\Http\Requests\ProductDiscountRequest;
+use App\Models\Discount;
+use App\Http\Requests\ProductFaqRequest;
+use App\Models\ProductFaq;
+use App\Http\Requests\ProductHighlightRequest;
+use App\Models\ProductHighlight;
 class ProductionsController extends Controller
 {
     public function index(){
@@ -85,5 +92,86 @@ class ProductionsController extends Controller
           'product_id'  => $products->id,
           'faqs'        => $products->faqs,
          ]);
+    }
+
+    public function search_by_name(Request $request){
+        $searchTerm = $request->input('query');
+        
+        $products = Product::where('name', 'LIKE', '%' . $searchTerm . '%')->get();
+        $product_images = Product::with('main_image')->where('name', 'LIKE', '%' . $searchTerm . '%')->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $products,
+            'images' => $product_images,
+        ]);
+    }
+
+    //API POST FOR ADMIN DASHBOARD
+
+    public function postProduct(ProductRequest $request){
+        $data = $request->validated();
+
+        $product = Product::create($data);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $product,
+        ]);
+    }
+    public function postProductImage(Request $request){
+        $data = $request->all();
+
+        $productImage = ProductImage::create($data);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $productImage,
+        ]);
+    }
+    public function postDicount(ProductDiscountRequest $request){
+        $data = $request->validated();
+
+        $productDiscount = Discount::create($data);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $productDiscount,
+        ]);
+    }
+
+    public function postProductColor(Request $request){
+        $data = $request->all();
+
+        $productColor = ProductColor::create($data);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $productColor,
+        ]);
+    }
+
+    public function postProductFaq(ProductFaqRequest $request){
+        $data = $request->validated();
+        $maxOrder = ProductFaq::where('product_id', $data['product_id'])->max('sort_order');
+        $data['sort_order'] = $maxOrder + 1;
+        $productFaq = ProductFaq::create($data);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $productFaq,
+        ]);
+    }
+
+    public function postHighLight(ProductHighlightRequest $request){
+        $data = $request->validated();
+        $maxOrder = ProductHighlight::where('product_id', $data['product_id'])->max('sort_order');
+        $data['sort_order'] = $maxOrder + 1;
+        $productHighlight = ProductHighlight::create($data);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $productHighlight,
+        ]);
     }
 }

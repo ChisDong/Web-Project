@@ -7,6 +7,20 @@ use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
+    use HasFactory;
+    protected $fillable = [
+        'category_id',
+        'collection_id',
+        'name',
+        'slug',
+        'description',
+        'base_price',
+        'discount_percent',
+        'gender',
+        'status',
+        'fit_description',
+        'product_infor',
+    ];
     public function category(){
         return $this->belongsTo(Category::class);
     }
@@ -24,6 +38,10 @@ class Product extends Model
 
     public function images(){
         return $this->hasMany(ProductImage::class);
+    }
+
+    public function main_image(){
+        return $this->hasOne(ProductImage::class)->where('role', 'main');
     }
 
     public function highlights(){

@@ -7,6 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProductFaq extends Model
 {
+    use HasFactory;
+    protected $fillable = [
+        'product_id',
+        'question',
+        'answer',
+        'sort_order',
+    ];
     public function products(){
         return $this->belongsTo(Product::class);
     }
