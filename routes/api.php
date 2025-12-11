@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Termwind\Components\Raw;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,7 +21,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// API GET IN WEBSITE
+//API Register
+
+
+// API IN WEBSITE
 // Public API: list products for a category
 Route::get('/categories/{category}/products', [App\Http\Controllers\ProductionsController::class, 'index_category'])->name('categories.products');
 // Public API: list products for a collection
@@ -57,4 +61,22 @@ Route::post('/product-highlights', [App\Http\Controllers\ProductionsController::
 // Protected API: create a new product (admin only)
 //API DELETE FOR ADMIN DASHBOARD
 
-//API FOR CUSTOMER ORDER
+//API FOR CUSTOMER
+//Public API: get all orders for a user
+Route::get('/orders/{order_id}', [App\Http\Controllers\CustomerController::class, 'getOrder'])->name('customer.orders.get');
+//Public API: get order details by order ID
+Route::get('/orders/detail/{order_id}', [App\Http\Controllers\CustomerController::class, 'getOrderById'])->name('customer.orders.getById');
+//Public API: cancel an order
+Route::post('/orders/cancel/{order_id}', [App\Http\Controllers\CustomerController::class, 'cancelOrder'])->name('customer.orders.cancel');
+//Public API: get orders by status
+Route::get('/orders/status/{status}', [App\Http\Controllers\CustomerController::class, 'getOrdersByStatus'])->name('customer.orders.status');
+//Public API: get all reviews not be reviewed 
+Route::get('/orders/review-reminder/{user_id}', [App\Http\Controllers\CustomerController::class, 'sendReviewReminder'])->name('customer.orders.reviewReminder');
+//Public API: review order_items
+Route::post('/orders/review/{variant_id}', [App\Http\Controllers\CustomerController::class, 'reviewOrderItem'])->name('customer.orders.review');
+//Public API: get all addresses for a user
+Route::get('/addresses/{user_id}', [App\Http\Controllers\CustomerController::class, 'getAddresses'])->name('customer.addresses.get');
+//Public API: add a new address for a user
+Route::post('/addresses', [App\Http\Controllers\CustomerController::class, 'postAddress'])->name('customer.addresses.add');
+//Public API: update an address for a user
+Route::put('/addresses/{address_id}', [App\Http\Controllers\CustomerController::class, 'updateAddress'])->name('customer.addresses.update');

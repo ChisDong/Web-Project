@@ -51,5 +51,8 @@ class Product extends Model
     public function faqs(){
         return $this->hasMany(ProductFaq::class);
     }
+    public function productVariants(){
+        return $this->hasMany(ProductVariant::class);   
+    }
 }
 
