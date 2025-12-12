@@ -70,7 +70,7 @@ Route::get('/orders/detail/{order_id}', [App\Http\Controllers\CustomerController
 Route::post('/orders/cancel/{order_id}', [App\Http\Controllers\CustomerController::class, 'cancelOrder'])->name('customer.orders.cancel');
 //Public API: get orders by status
 Route::get('/orders/status/{status}', [App\Http\Controllers\CustomerController::class, 'getOrdersByStatus'])->name('customer.orders.status');
-//Public API: get all reviews not be reviewed 
+//Public API: get all items not be reviewed 
 Route::get('/orders/review-reminder/{user_id}', [App\Http\Controllers\CustomerController::class, 'sendReviewReminder'])->name('customer.orders.reviewReminder');
 //Public API: review order_items
 Route::post('/orders/review/{variant_id}', [App\Http\Controllers\CustomerController::class, 'reviewOrderItem'])->name('customer.orders.review');
@@ -80,3 +80,19 @@ Route::get('/addresses/{user_id}', [App\Http\Controllers\CustomerController::cla
 Route::post('/addresses', [App\Http\Controllers\CustomerController::class, 'postAddress'])->name('customer.addresses.add');
 //Public API: update an address for a user
 Route::put('/addresses/{address_id}', [App\Http\Controllers\CustomerController::class, 'updateAddress'])->name('customer.addresses.update');
+//Public API: delete an address for a user
+Route::delete('/addresses/{address_id}', [App\Http\Controllers\CustomerController::class, 'deleteAddress'])->name('customer.addresses.delete');
+//Public API: get my reviews
+Route::get('/reviews/{user_id}', [App\Http\Controllers\CustomerController::class, 'getMyReviews'])->name('customer.reviews.get');
+//Public API: delete my review
+Route::delete('/reviews/{review_id}', [App\Http\Controllers\CustomerController::class, 'deleteReview'])->name('customer.reviews.delete');
+//Public API: get notifications
+Route::get('/notifications/{user_id}', [App\Http\Controllers\CustomerController::class, 'getNotifications'])->name('customer.notifications.get');
+//Public API: mark all notification as read
+Route::post('/notifications/read_all/{user_id}', [App\Http\Controllers\CustomerController::class, 'markAllNotificationsAsRead'])->name('customer.notifications.read');
+//Public API: mark a notification as read
+Route::post('/notifications/read/{notification_id}', [App\Http\Controllers\CustomerController::class, 'markNotificationAsRead'])->name('customer.notifications.readOne');
+//Public API clear read notifications
+Route::delete('/notifications/clear_read/{notification_id}', [App\Http\Controllers\CustomerController::class, 'clearReadNotifications'])->name('customer.notifications.clearRead');
+//Public API: clear all notifications
+Route::delete('/notifications/clear_all/{user_id}', [App\Http\Controllers\CustomerController::class, 'clearAllNotifications'])->name('customer.notifications.clearAll');

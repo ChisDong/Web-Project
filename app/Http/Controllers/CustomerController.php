@@ -14,7 +14,7 @@ use App\Models\OrderItems;
 use App\Models\ProductVariant;
 use App\Models\ProductReview;
 use App\Models\CustomerAddresses;
-
+use App\Models\Notifications;
 class CustomerController extends Controller
 {
     public function edit()
@@ -158,6 +158,7 @@ class CustomerController extends Controller
         return response()->json(['message' => 'Address added successfully'], 200);
     }
     // 16. PUT /api/addresses/{id}
+    // Phần này nhớ cập nhật frontend nhớ cập nhật header 'Content-Type: application/json' khi test API
     public function updateAddress(CustomerAddressRequest $request, $address_id)
     {
         $address = CustomerAddresses::find($address_id);
@@ -173,22 +174,136 @@ class CustomerController extends Controller
         $address->save();
         return response()->json(['message' => 'Address updated successfully'], 200);
     }
-
     // 17. DELETE /api/addresses/{id}
+    // Vấn đề phát sinh khi đơn hàng còn tham chiếu đến địa chỉ này thì không cho xoá
+    public function deleteAddress($address_id)
+    {
+        $address = CustomerAddresses::find($address_id);
+        if (!$address) {
+            return response()->json(['error' => 'Address not found'], 404);
+        }
+        $address->delete();
+        return response()->json(['message' => 'Address deleted successfully'], 200);
+    }
     // 18. POST /api/addresses/{id}/set-default
+
     //NHÓM 4 — WISHLIST (YÊU THÍCH)
     // 19. GET /api/wishlist
     // 20. POST /api/wishlist/{product_id}
     // 21. DELETE /api/wishlist/{product_id}
     //NHÓM 5 — REVIEWS (ĐÁNH GIÁ)
     // 21. GET /api/reviews/mine
-    // 22. POST /api/reviews/{product_id}
+    public function getMyReviews($user_id){
+        $reviews = ProductReview::where('user_id', $user_id)->get();
+        if ($reviews->isEmpty()) {
+            return response()->json(['error' => 'No reviews found'], 404);
+        }
+        return response()->json($reviews);
+    }
+    // 22. POST /api/reviews/{product_id} -- 12 đã làm ở trên trong phần review order items
     // 23. PUT /api/reviews/{review_id}
+    public function updateReview(ReviewRequest $request, $review_id)
+    {
+        $review = ProductReview::find($review_id);
+        if (!$review) {
+            return response()->json(['error' => 'Review not found'], 404);
+        }
+        $data = $request->validated();
+        $review->rating = $data['rating'] ?? $review->rating;
+        $review->comment = $data['comment'] ?? $review->comment;
+        $review->save();
+        return response()->json(['message' => 'Review updated successfully'], 200);
+    }
     // 24. DELETE /api/reviews/{review_id}
-    //NHÓM 6 — NOTIFICATIONS
+    public function deleteReview($review_id)
+    {
+        $review = ProductReview::find($review_id);
+        if (!$review) {
+            return response()->json(['error' => 'Review not found'], 404);
+        }
+        $review->delete();
+        return response()->json(['message' => 'Review deleted successfully'], 200);
+    }
+    //Soft delete (khuyên dùng cho sản phẩm đã từng xuất hiện trong đơn hàng)
+    //NHÓM 6 — NOTIFICATIONS -- lưu ý phần này khi cập nhật đơn hàng đồ phải tạo ra notification tương ứng để user nhận được
+    //làm thế nào để người dùng nhận được notification ngay khi có điều cần thông báo giả xử như có khuyến mãi hot
     // 25. GET /api/notifications
+    public function getNotifications($user_id)
+    {
+        $notifications = Notifications::where('user_id', $user_id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        if ($notifications->isEmpty()) {
+            return response()->json(['error' => 'No notifications found'], 404);
+        }
+        return response()->json($notifications);
+    }
     // 26. POST /api/notifications/read-all
+    public function markAllNotificationsAsRead($user_id)
+    {
+        $notifications = Notifications::where('user_id', $user_id)
+            ->where('is_read', 0)
+            ->get();
+
+        if ($notifications->isEmpty()) {
+            return response()->json(['message' => 'All notifications are already read'], 200);
+        }
+
+        foreach ($notifications as $notification) {
+            $notification->is_read = 1;
+            $notification->read_at = now();
+            $notification->save();
+        }
+
+        return response()->json(['message' => 'All notifications marked as read'], 200);
+    }
     // 27. POST /api/notifications/{id}/read
+    public function markNotificationAsRead($notification_id)
+    {
+        $notification = Notifications::find($notification_id);
+
+        if (!$notification) {
+            return response()->json(['error' => 'Notification not found'], 404);
+        }
+
+        if ($notification->is_read) {
+            return response()->json(['message' => 'Notification is already marked as read'], 200);
+        }
+
+        $notification->is_read = 1;
+        $notification->read_at = now();
+        $notification->save();
+
+        return response()->json(['message' => 'Notification marked as read'], 200);
+    }
+    // 28. DELETE /api/notifications/clear-read
+    public function clearReadNotifications($notification_id)
+    {
+        $readNotifications = Notifications::find($notification_id);
+
+        if (!$readNotifications) {
+            return response()->json(['message' => 'No read notifications to clear'], 200);
+        }
+        $readNotifications->delete();
+
+        return response()->json(['message' => 'Notification cleared'], 200);
+    }
+    // 29. DELETE /api/notifications/clear-all
+    public function clearAllNotifications($user_id)
+    {
+        $notifications = Notifications::where('user_id', $user_id)->get();
+
+        if ($notifications->isEmpty()) {
+            return response()->json(['message' => 'No notifications to clear'], 200);
+        }
+
+        foreach ($notifications as $notification) {
+            $notification->delete();
+        }
+
+        return response()->json(['message' => 'All notifications cleared'], 200);
+    }
     //NHÓM 7 — PAYMENT METHODS
     // 28. GET /api/vouchers
     // 29. GET /api/vouchers/available

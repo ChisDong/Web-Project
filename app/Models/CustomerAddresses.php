@@ -7,7 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class CustomerAddresses extends Model
 {
-    use HasFactory;
+    protected $table = 'customer_addresses';
+    protected $primaryKey = 'address_id';
+
+    public $incrementing = true;
+    protected $keyType = 'int';
     protected $fillable = [
         'customer_id',
         'address_line',
@@ -17,6 +21,6 @@ class CustomerAddresses extends Model
         'country',
     ];
     public function user(){
-        return $this->belongsTo(User::class, 'customer_id');
+        return $this->belongsTo(User::class);
     }
 }

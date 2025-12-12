@@ -21,9 +21,9 @@ class CustomerAddressRequest extends FormRequest
      *
      * @return array<string, mixed>
      */
-    public function rules()
+    public function rules(): array
     {
-        return [
+        $createRules = [
             'customer_id' => 'required|integer',
             'address_line' => 'nullable|string|max:255',
             'ward' => 'required|string|max:100',
@@ -31,5 +31,14 @@ class CustomerAddressRequest extends FormRequest
             'city' => 'required|string|max:100',
             'country' => 'required|string|max:100',
         ];
+
+        $updateRules = [
+            'address_line' => 'sometimes|nullable|string|max:255',
+            'ward' => 'sometimes|string|max:100',
+            'district' => 'sometimes|string|max:100',
+            'city' => 'sometimes|string|max:100',
+            'country' => 'sometimes|string|max:100',
+        ];
+        return $this->isMethod('put') ? $updateRules : $createRules;
     }
 }
