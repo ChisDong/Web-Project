@@ -15,6 +15,7 @@ use App\Models\ProductVariant;
 use App\Models\ProductReview;
 use App\Models\CustomerAddresses;
 use App\Models\Notifications;
+use Illuminate\Support\Facades\DB;
 class CustomerController extends Controller
 {
     public function edit()
@@ -186,6 +187,34 @@ class CustomerController extends Controller
         return response()->json(['message' => 'Address deleted successfully'], 200);
     }
     // 18. POST /api/addresses/{id}/set-default
+    public function setDefaultAddress($user_id, $address_id)
+    {
+        DB::transaction(function () use ($user_id, $address_id) {
+
+            CustomerAddresses::where('customer_id', $user_id)
+            ->where('is_default', 1)
+            ->update(['is_default' => 0]);
+
+        // 2) Set default mới
+        CustomerAddresses::where('address_id', $address_id)
+            ->where('customer_id', $user_id)
+            ->update(['is_default' => 1]);
+        });
+        return response()->json(['message' => 'Default address set successfully'], 200);
+    }
+
+    public static function getDefaultAddress($user_id)
+    {
+        $address = CustomerAddresses::where('customer_id', $user_id)
+            ->where('is_default', 1)
+            ->first();
+
+        if (!$address) {
+            return response()->json(['error' => 'No default address found'], 404);
+        }
+
+        return $address;
+    }
 
     //NHÓM 4 — WISHLIST (YÊU THÍCH)
     // 19. GET /api/wishlist

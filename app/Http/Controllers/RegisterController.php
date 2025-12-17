@@ -17,50 +17,58 @@ class RegisterController extends Controller
 
     public function postRegister(RegisterRequest $request){
         // RegisterRequest already validates the input
+        $data = $request->validated();
 
         User::create([
-            'name' => $request->get('name'),
-            'email' => $request->get('email'),
-            'password' => Hash::make($request->get('password')),
-            'phone' => $request->get('phone'),
-            'address' => $request->get('address'),
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
+            'phone' => $data['phone'],
+            'address' => $data['address'],
         ]);
 
-        return redirect()->route('showLogin')->with('message', 'Đăng ký thành công!');
+        return response()->json(['message' => 'User registered successfully'], 201);
     }
 
     public function showLogin(){
         return view('registers.login');
     }
 
-    public function postLogin(LoginRequest $request){
+    public function postLogin(LoginRequest $request)
+    {
         $credentials = $request->only('email', 'password');
-        if(Auth::attempt($credentials)){
-            $request->session()->regenerate();
-            $user = Auth::user();
-            if($user->role === 'admin'){
-                return redirect()-> route('showManager')->with('message', 'Đăng nhập thành công!');
-            } else if($user->role === 'customer'){
-                return redirect()-> route('home')->with('message', 'Đăng nhập thành công!');
-            }
-            // Default fallback
-            return redirect()->route('home')->with('message', 'Đăng nhập thành công!');
+
+        if (!Auth::attempt($credentials)) {
+            return response()->json([
+                'message' => 'Email hoặc mật khẩu không đúng.'
+            ], 401);
         }
 
-        // Failed authentication
-        return back()->withErrors([
-            'email' => 'Email hoặc mật khẩu không đúng.'
-        ])->withInput($request->only('email'));
+        $request->session()->regenerate();
+
+        $user = Auth::user();
+
+        return response()->json([
+            'message' => 'Đăng nhập thành công!',
+            'role' => $user->role,              
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ]
+        ], 200);
     }
 
-    public function logout(Request $request){
+    public function logout(Request $request)
+    {
         Auth::logout();
 
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
-        return redirect()->route('showLogin');
+        return response()->json([
+            'message' => 'Đăng xuất thành công!'
+        ], 200);
     }
 
     

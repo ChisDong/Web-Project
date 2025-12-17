@@ -16,6 +16,8 @@ use App\Http\Requests\ProductFaqRequest;
 use App\Models\ProductFaq;
 use App\Http\Requests\ProductHighlightRequest;
 use App\Models\ProductHighlight;
+use App\Models\ProductVariant;
+
 class ProductionsController extends Controller
 {
     public function index(){
@@ -106,6 +108,13 @@ class ProductionsController extends Controller
             'images' => $product_images,
         ]);
     }
+    public function getProductVariants($id){
+        $product_Variants = ProductVariant::where('product_id', $id)->get();
+        return response()->json([
+            'status' => 'success',
+            'data' => $product_Variants,
+        ]);
+    }
 
     //API POST FOR ADMIN DASHBOARD
 
@@ -119,6 +128,7 @@ class ProductionsController extends Controller
             'data' => $product,
         ]);
     }
+    // sửa lại chỗ này
     public function postProductImage(Request $request){
         $data = $request->all();
 
@@ -174,4 +184,5 @@ class ProductionsController extends Controller
             'data' => $productHighlight,
         ]);
     }
+
 }

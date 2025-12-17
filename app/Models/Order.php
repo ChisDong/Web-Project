@@ -14,6 +14,11 @@ class Order extends Model
         'total_price',
         'status' => 'pending',
         'address',
+        'shipping_addressline',
+        'shipping_ward',
+        'shipping_district',
+        'shipping_city',
+        'payment_method',
     ];
 
     public function orderItems(){

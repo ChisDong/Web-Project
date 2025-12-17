@@ -49,6 +49,8 @@ class AdminController extends Controller
         return redirect()->route('showIndex')->with('message', 'Xóa người dùng thành công!');
     }
 
+    
+
     // statistics are prepared in showIndex
 
 }
