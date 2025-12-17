@@ -58,7 +58,7 @@ Route::put('/orders/update-cart', [App\Http\Controllers\OrderController::class, 
 Route::delete('/orders/remove-from-cart/{order_item_id}', [App\Http\Controllers\OrderController::class, 'removeCartItem'])->name('orders.removeFromCart');
 //Public API apply address to order
 Route::post('/orders/apply-address/{order_id}', [App\Http\Controllers\OrderController::class, 'applyAddress'])->name('orders.applyAddress');
-//Public API: get cart Items 
+//Public API: get cart Items
 Route::get('/cart/{user_id}', [App\Http\Controllers\OrderController::class, 'getCartItems'])->name('customer.cart.getItems');
 
 // Public API: place an
@@ -90,7 +90,7 @@ Route::get('/orders/detail/{order_id}', [App\Http\Controllers\CustomerController
 Route::post('/orders/cancel/{order_id}', [App\Http\Controllers\CustomerController::class, 'cancelOrder'])->name('customer.orders.cancel');
 //Public API: get orders by status
 Route::get('/orders/status/{status}', [App\Http\Controllers\CustomerController::class, 'getOrdersByStatus'])->name('customer.orders.status');
-//Public API: get all items not be reviewed 
+//Public API: get all items not be reviewed
 Route::get('/orders/review-reminder/{user_id}', [App\Http\Controllers\CustomerController::class, 'sendReviewReminder'])->name('customer.orders.reviewReminder');
 //Public API: review order_items
 Route::post('/orders/review/{variant_id}', [App\Http\Controllers\CustomerController::class, 'reviewOrderItem'])->name('customer.orders.review');

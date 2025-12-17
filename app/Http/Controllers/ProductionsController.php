@@ -35,7 +35,7 @@ class ProductionsController extends Controller
     public function index_collection(Collection $collection){
         $products = $collection->products()->get();
         return response()->json([
-            'status' => 'success',  
+            'status' => 'success',
             'data' => $products,
         ]);
     }
@@ -52,7 +52,7 @@ class ProductionsController extends Controller
         $productsByColor[] = ProductColor::with('products')->where('color_code', $code)->get();
       }
       return response()->json([
-          'status' => 'success',  
+          'status' => 'success',
           'data' => $productsByColor,
       ]);
     }
@@ -98,7 +98,7 @@ class ProductionsController extends Controller
 
     public function search_by_name(Request $request){
         $searchTerm = $request->input('query');
-        
+
         $products = Product::where('name', 'LIKE', '%' . $searchTerm . '%')->get();
         $product_images = Product::with('main_image')->where('name', 'LIKE', '%' . $searchTerm . '%')->get();
 
@@ -130,9 +130,25 @@ class ProductionsController extends Controller
     }
     // sửa lại chỗ này
     public function postProductImage(Request $request){
-        $data = $request->all();
+        $data = $request->validate(
+            [
+                'product_id' => 'required|exists:products,id',
+                'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
+                'role' => 'nullable|string|max:50',
+            ]
+        );
 
-        $productImage = ProductImage::create($data);
+        $imagePath = null;
+
+        if($request->hasFile('image')){
+            $imagePath = $request->file('image')->store('product_images', 'public');
+        }
+
+        $productImage = ProductImage::create([
+            'product_id' => $data['product_id'],
+            'image_url' => asset('storage/'.$imagePath),
+            'role' => $data['role'] ?? null,
+        ]);
 
         return response()->json([
             'status' => 'success',
