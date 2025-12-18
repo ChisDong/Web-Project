@@ -201,4 +201,17 @@ class ProductionsController extends Controller
         ]);
     }
 
+    public function putProduct($product_id){
+        $product = Product::findOrFail($product_id);
+        $product->status = 'inactivate';
+        $product->save();
+        return response()->json([
+            'status' => 'success',
+            'data' => $product,
+        ]);
+    }
+
+
+
+
 }

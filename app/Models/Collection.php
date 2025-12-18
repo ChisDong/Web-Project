@@ -12,8 +12,9 @@ class Collection extends Model
         'name',
         'slug',
         'description',
+        'status',
     ];
-    
+
     public function products(){
         return $this->hasMany(Product::class);
     }

@@ -60,8 +60,8 @@ Route::delete('/orders/remove-from-cart/{order_item_id}', [App\Http\Controllers\
 Route::post('/orders/apply-address/{order_id}', [App\Http\Controllers\OrderController::class, 'applyAddress'])->name('orders.applyAddress');
 //Public API: get cart Items
 Route::get('/cart/{user_id}', [App\Http\Controllers\OrderController::class, 'getCartItems'])->name('customer.cart.getItems');
+//API FOR Wishlist
 
-// Public API: place an
 // API POST FOR ADMIN DASHBOARD
 Route::post('/categories', [App\Http\Controllers\CategoryCollectionController::class, 'postCategory'])->name('categories.post');
 // Public API: create a new collection
@@ -78,7 +78,17 @@ Route::post('/product-colors', [App\Http\Controllers\ProductionsController::clas
 Route::post('/product-faqs', [App\Http\Controllers\ProductionsController::class, 'postProductFaq'])->name('product.faqs.post');
 // Public API: create a new product highlight
 Route::post('/product-highlights', [App\Http\Controllers\ProductionsController::class, 'postHighLight'])->name('product.highlights.post');
+//API PUT FOR ADMIN DASHBOARD
+// PUBLIC API: UPDATE CATEGORY STATUS
+Route::put('/categories/{category_id}/status', [App\Http\Controllers\CategoryCollectionController::class, 'updateCategoryStatus'])->name('categories.updateStatus');
+// PUBLIC API: UPDATE COLLECTION STATUS
+Route::put('/collections/{collection_id}/status', [App\Http\Controllers\CategoryCollectionController::class, 'updateCollectionStatus'])->name('collections.updateStatus');
+// PUBLIC API: UPDATE PRODUCT STATUS
+Route::put('/products/{product_id}/status', [App\Http\Controllers\ProductionsController::class, 'putProductStatus'])->name('products.updateStatus');
+// thêm mớ API PUT giúp mình điều chỉnh thông tin sản phẩm
+
 // Protected API: create a new product (admin only)
+
 //API DELETE FOR ADMIN DASHBOARD
 
 //API FOR CUSTOMER

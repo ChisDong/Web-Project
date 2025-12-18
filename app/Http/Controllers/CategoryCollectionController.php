@@ -31,4 +31,26 @@ class CategoryCollectionController extends Controller
             'data' => $collection,
         ]);
     }
-}   
+    public function updateCategoryStatus($category_id){
+
+        $category = Category::findOrFail($category_id);
+        $category->status = 'deactivate';
+        $category->save();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $category,
+        ]);
+    }
+    public function updateCollectionStatus($collection_id){
+
+        $collection = Collection::findOrFail($collection_id);
+        $collection->status = 'deactivate';
+        $collection->save();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $collection,
+        ]);
+    }
+}
