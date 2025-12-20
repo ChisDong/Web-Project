@@ -27,7 +27,6 @@ class ProductHighlightRequest extends FormRequest
             'product_id' => 'required|exists:products,id',
             'title' => 'required|string|max:255',
             'description' => 'required|string|max:1000',
-            'image_url' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'sort_order' => 'nullable|integer',
         ];
     }

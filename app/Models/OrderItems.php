@@ -20,7 +20,7 @@ class OrderItems extends Model
     ];
 
     public function productVariant(){
-        return $this->hasMany(ProductVariant::class);
+        return $this->belongsTo(ProductVariant::class, 'variant_id');
     }
 
 }

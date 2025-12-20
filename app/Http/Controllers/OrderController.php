@@ -109,7 +109,7 @@ class OrderController extends Controller
         $this->handleEmptyCart($orderId);
         return response()->json(['message' => 'Item removed from cart'], 200);
     }
-    // phải thêm cả lấy hình ảnh và thông tin variant
+    // phải thêm cả lấy hình ảnh và thông tin variant, frontend gọi tới các api get by id để lấy
     public function getCartItems($userId)
     {
         $order = Order::where('user_id', $userId)
@@ -172,5 +172,25 @@ class OrderController extends Controller
         $order->save();
         return response()->json(['message' => 'Address updated for order successfully'], 200);
 
+    }
+    public function checkoutOrder($orderId)
+    {
+        $order = Order::where('id', $orderId)->where('status', 'pending')->firstOrFail();
+        $order->status = 'processing';
+        $order->save();
+        return response()->json(['message' => 'Order checked out successfully'], 200);
+    }
+
+    public function updateOrderStatus(Request $request, $orderId)
+    {
+        $request->validate([
+            'status' => 'required|string|max:50',
+        ]);
+
+        $order = Order::findOrFail($orderId);
+        $order->status = $request->input('status');
+        $order->save();
+
+        return response()->json(['message' => 'Order status updated successfully'], 200);
     }
 }

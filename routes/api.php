@@ -60,7 +60,34 @@ Route::delete('/orders/remove-from-cart/{order_item_id}', [App\Http\Controllers\
 Route::post('/orders/apply-address/{order_id}', [App\Http\Controllers\OrderController::class, 'applyAddress'])->name('orders.applyAddress');
 //Public API: get cart Items
 Route::get('/cart/{user_id}', [App\Http\Controllers\OrderController::class, 'getCartItems'])->name('customer.cart.getItems');
-//API FOR Wishlist
+//Public API get varient by id
+Route::get('/product-variant/{variant_id}', [App\Http\Controllers\ProductVariantController::class, 'getProductVariantById'])->name('product.variants.getById');
+//Public API get product color by id
+Route::get('/product-color/{product_color_id}', [App\Http\Controllers\ProductColorController::class, 'getProductColorById'])->name('product.colors.getById');
+//Public API get size by id
+Route::get('/size/{size_id}', [App\Http\Controllers\SizeController::class, 'getSizeById'])->name('sizes.getById');
+//Public API: set order payment method
+Route::post('/orders/set-payment-method/{order_id}', [App\Http\Controllers\OrderController::class, 'setOrderPaymentMethod'])->name('orders.setPaymentMethod');
+//API FOR PRODUCT COLOR
+// Public API: get all product colors
+Route::get('/product-colors', [App\Http\Controllers\ProductColorController::class, 'getAllProductColors'])->name('product.colors.getAll');
+// Public API: create a new product color
+Route::post('/product-colors', [App\Http\Controllers\ProductColorController::class, 'postProductColor'])->name('product.colors.post');
+// Public API: update product color status
+Route::put('/product-colors/{product_color_id}/status', [App\Http\Controllers\ProductColorController::class, 'updateProductColorStatus'])->name('product.colors.updateStatus');
+// Public API: delete a product color
+Route::delete('/product-colors/{product_color_id}', [App\Http\Controllers\ProductColorController::class, 'deleteProductColor'])->name('product.colors.delete');
+// Public API: get all product variants
+Route::get('/product-variants', [App\Http\Controllers\ProductVariantController::class, 'getAllProductVariants'])->name('product.variants.getAll');
+// Public API: update product variant status
+Route::put('/product-variants/{id}/status', [App\Http\Controllers\ProductVariantController::class, 'updateProductVariantStatus'])->name('product.variants.updateStatus');
+// Public API: delete product variant
+Route::delete('/product-variants/{id}', [App\Http\Controllers\ProductVariantController::class, 'deleteProductVariant'])->name('product.variants.delete');
+// Public API: update product variant
+Route::put('/product-variants/{variant_id}', [App\Http\Controllers\ProductVariantController::class, 'updateProductVariant'])->name('product.variants.update');
+// Public API: post product variant
+Route::post('/product-variants', [App\Http\Controllers\ProductVariantController::class, 'postProductVariant'])->name('product.variants.post');
+
 
 // API POST FOR ADMIN DASHBOARD
 Route::post('/categories', [App\Http\Controllers\CategoryCollectionController::class, 'postCategory'])->name('categories.post');
@@ -79,17 +106,30 @@ Route::post('/product-faqs', [App\Http\Controllers\ProductionsController::class,
 // Public API: create a new product highlight
 Route::post('/product-highlights', [App\Http\Controllers\ProductionsController::class, 'postHighLight'])->name('product.highlights.post');
 //API PUT FOR ADMIN DASHBOARD
+// Public API: update product faqs
+Route::put('/product-faqs/{faq_id}', [App\Http\Controllers\ProductFaqController::class, 'putProductFaq'])->name('product.faqs.update');
+// Public API: update product highlights
+Route::put('/product-highlights/{highlight_id}', [App\Http\Controllers\ProductHightlightController::class, 'putProductHighlight'])->name('product.highlights.update');
+//API DELETE FOR ADMIN
+// Public API: delete product highlights
+Route::delete('/product-highlights/{highlight_id}', [App\Http\Controllers\ProductHightlightController::class, 'deleteProductHighlight'])->name('product.highlights.delete');
+// Public API: delete product faqs
+Route::delete('/product-faqs/{faq_id}', [App\Http\Controllers\ProductFaqController::class, 'deleteProductFaq'])->name('product.faqs.delete');
 // PUBLIC API: UPDATE CATEGORY STATUS
 Route::put('/categories/{category_id}/status', [App\Http\Controllers\CategoryCollectionController::class, 'updateCategoryStatus'])->name('categories.updateStatus');
 // PUBLIC API: UPDATE COLLECTION STATUS
 Route::put('/collections/{collection_id}/status', [App\Http\Controllers\CategoryCollectionController::class, 'updateCollectionStatus'])->name('collections.updateStatus');
 // PUBLIC API: UPDATE PRODUCT STATUS
 Route::put('/products/{product_id}/status', [App\Http\Controllers\ProductionsController::class, 'putProductStatus'])->name('products.updateStatus');
+// PUBLIC API: UPDATE ORDER STATUS
+Route::put('/orders/{order_id}/status', [App\Http\Controllers\OrderController::class, 'updateOrderStatus'])->name('orders.updateStatus');
 // thêm mớ API PUT giúp mình điều chỉnh thông tin sản phẩm
-
-// Protected API: create a new product (admin only)
-
-//API DELETE FOR ADMIN DASHBOARD
+// PUBLIC API UPDATE CATEGORY
+Route::put('/categories/{category_id}', [App\Http\Controllers\CategoryCollectionController::class, 'updateCategory'])->name('categories.update');
+// PUBLIC API UPDATE COLLECTION
+Route::put('/collections/{collection_id}', [App\Http\Controllers\CategoryCollectionController::class, 'updateCollection'])->name('collections.update');
+//PUbLIC API UPDATE PRODUCT
+Route::put('/products/{product_id}', [App\Http\Controllers\ProductionsController::class, 'updateProduct'])->name('products.update');
 
 //API FOR CUSTOMER
 //Public API: get all orders for a user

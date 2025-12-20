@@ -191,17 +191,21 @@ class ProductionsController extends Controller
 
     public function postHighLight(ProductHighlightRequest $request){
         $data = $request->validated();
+        $imagePath = null;
+        if($request->hasFile('image')){
+            $imagePath = $request->file('image')->store('productHighlight_images', 'public');
+            $data['image_url'] = asset('storage/'.$imagePath);
+        }
         $maxOrder = ProductHighlight::where('product_id', $data['product_id'])->max('sort_order');
         $data['sort_order'] = $maxOrder + 1;
         $productHighlight = ProductHighlight::create($data);
-
         return response()->json([
             'status' => 'success',
             'data' => $productHighlight,
         ]);
     }
 
-    public function putProduct($product_id){
+    public function putProductStatus($product_id){
         $product = Product::findOrFail($product_id);
         $product->status = 'inactivate';
         $product->save();
@@ -211,7 +215,30 @@ class ProductionsController extends Controller
         ]);
     }
 
+    public function updateProduct(Request $request, $product_id){
+        $data = $request->validate([
+            'category_id' => 'sometimes|exists:categories,id',
+            'collection_id' => 'sometimes|exists:collections,id',
+            'name' => 'sometimes|string|max:255',
+            'slug' => 'sometimes|string|max:255|unique:products,slug,'.$product_id,
+            'description' => 'sometimes|string',
+            'base_price' => 'sometimes|numeric|min:0',
+            'discount_percent' => 'sometimes|numeric|min:0|max:100',
+        ]);
 
+        $product = Product::findOrFail($product_id);
+        $product->category_id = $data['category_id'] == null ? $product->category_id : $data['category_id'];
+        $product->collection_id = $data['collection_id'] == null ? $product->collection_id : $data['collection_id'];
+        $product->name = $data['name'] == null ? $product->name : $data['name'];
+        $product->slug = $data['slug'] == null ? $product->slug : $data['slug'];
+        $product->description = $data['description'] == null ? $product->description : $data['description'];
+        $product->base_price = $data['base_price'] == null ? $product->base_price : $data['base_price'];
+        $product->discount_percent = $data['discount_percent'] == null ? $product->discount_percent : $data['discount_percent'];
+        $product->save();
 
-
+        return response()->json([
+            'status' => 'success',
+            'data' => $product,
+        ]);
+    }
 }
