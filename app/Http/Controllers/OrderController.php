@@ -19,7 +19,7 @@ class OrderController extends Controller
             ->where('status', 'pending')
             ->first();
 
-        $address_id = CustomerAddresses::where('user_id', $data['user_id'])->where('is_default', true)->value('address_id');
+        $address_id = CustomerAddresses::where('customer_id', $data['user_id'])->where('is_default', true)->value('address_id');
         if (!$order) {
             $order = Order::create([
                 'user_id' => $data['user_id'],
@@ -28,25 +28,32 @@ class OrderController extends Controller
                 'address' => $address_id
             ]);
         }
-
-        $items = OrderItems::where('order_id', $order->id)
-            ->where('variant_id', $data['variant_id'])
+        $productVariant = ProductVariant::where('product_id', $data['product_id'])
+            ->where('color_id', $data['color_id'])
+            ->where('size_id', $data['size_id'])
             ->first();
 
-        $unitPrice = ProductVariant::where('id', $data['variant_id'])->value('price');
+        // Ensure variant exists
+        if (!$productVariant) {
+            return response()->json(['message' => 'Product variant not found for the given product/color/size'], 404);
+        }
+
+        $items = OrderItems::where('order_id', $order->id)
+            ->where('variant_id', $productVariant->id)
+            ->first();
+
+        $unitPrice = ProductVariant::where('id', $productVariant->id)->value('price');
 
         if ($items) {
             $items->quantity += $data['quantity'];
-            $items->total_price = $items->quantity * $unitPrice;
             $items->save();
         } else {
             OrderItems::create([
                 'order_id' => $order->id,
-                'variant_id' => $data['variant_id'],
+                'variant_id' => $productVariant->id,
                 'quantity' => $data['quantity'],
                 'price' => $unitPrice,
             ]);
-            $totalPrice = $data['quantity'] * $unitPrice;
         }
         $order->total_price = OrderItems::where('order_id', $order->id)
             ->selectRaw('SUM(quantity * price) as total')
@@ -123,11 +130,39 @@ class OrderController extends Controller
             ], 200);
         }
 
-        $items = OrderItems::where('order_id', $order->id)->get();
+        $items = OrderItems::with([
+            'productVariant.color',
+            'productVariant.size',
+        ])
+        ->where('order_id', $order->id)
+        ->get();
+
+        $data = $items->map(function ($it) {
+            $v = $it->productVariant;
+
+            return [
+                'id' => $it->id,
+                'order_id' => $it->order_id,
+                'variant_id' => $it->variant_id,
+                'quantity' => $it->quantity,
+                'price' => $it->price,
+
+                'product_id' => $v?->product?->id,
+                'name' => $v?->product?->name,
+
+                'color_id' => $v?->color?->id,
+                'color_name' => $v?->color?->color_name,
+                'color_code' => $v?->color?->color_code,
+                'main_image' => $v?->color?->main_image,
+
+                'size_id' => $v?->size?->id,
+                'size_name' => $v?->size?->size_name,
+            ];
+        });
 
         return response()->json([
             'message' => 'Cart items retrieved successfully',
-            'data' => $items
+            'data' => $data
         ], 200);
     }
 

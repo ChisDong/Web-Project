@@ -89,4 +89,25 @@ class ProductVariantController extends Controller
         ]);
     }
 
+    public function getVariantsIdBycolorIdAndSizeId(Request $request){
+        $data = $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'color_id' => 'required|exists:product_colors,id',
+            'size_id' => 'required|exists:product_sizes,id',
+        ]);
+        $productVariant = ProductVariant::where('product_id', $data['product_id'])
+            ->where('color_id', $data['color_id'])
+            ->where('size_id', $data['size_id'])
+            ->first();
+
+        if (!$productVariant) {
+            return response()->json(['status' => 'error', 'message' => 'Product variant not found'], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $productVariant,
+        ]);
+    }
+
 }

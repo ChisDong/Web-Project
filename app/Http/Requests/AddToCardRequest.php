@@ -25,8 +25,10 @@ class AddToCardRequest extends FormRequest
     {
         return [
             "user_id" => "required|exists:users,id",
-            "variant_id" => "required|exists:product_variants,id",
+            "color_id" => "required|exists:product_colors,id",
+            "size_id" => "required|exists:sizes,id",
+            "product_id" => "required|exists:products,id",
             "quantity" => "required|integer|min:1",
-        ];      
+        ];
     }
 }

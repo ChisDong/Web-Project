@@ -24,19 +24,26 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //API Register
 // xử lý "message": "CSRF token mismatch.",
 // Public API: user registration
-Route::middleware('web')->post('/register', [App\Http\Controllers\RegisterController::class, 'postRegister'])->name('api.register');
+Route::post('/register', [App\Http\Controllers\RegisterController::class, 'postRegister'])->name('api.register');
 // Public API: user login
-Route::middleware('web')->post('/login', [App\Http\Controllers\RegisterController::class, 'postLogin'])->name('api.login');
+//Route::middleware('web')->post('/login', [App\Http\Controllers\RegisterController::class, 'postLogin'])->name('api.login');
+Route::post('/login', [App\Http\Controllers\RegisterController::class, 'postLogin'])->name('api.login');
 // Public API: user logout
-Route::middleware('web')->post('/logout', [App\Http\Controllers\RegisterController::class, 'logout'])->name('api.logout');
+Route::post('/logout', [App\Http\Controllers\RegisterController::class, 'logout'])->name('api.logout');
 
 // API IN WEBSITE
+// get product by ID
+Route::get('/products/{id}', [App\Http\Controllers\ProductionsController::class, 'getProductByID'])->name('products.getById');
+// Public API: list all products
+Route::get('/products', [App\Http\Controllers\ProductionsController::class, 'index_product'])->name('products.index');
 // Public API: list products for a category
 Route::get('/categories/{category}/products', [App\Http\Controllers\ProductionsController::class, 'index_category'])->name('categories.products');
 // Public API: list products for a collection
 Route::get('/collections/{collection}/products', [App\Http\Controllers\ProductionsController::class, 'index_collection'])->name('collections.products');
 // Public API: list products by it's colors
 Route::get('/products-by-color/{product_id}', [App\Http\Controllers\ProductionsController::class, 'get_products_by_color'])->name('products.by.color');
+// Public API: get product by colors
+Route::get('/products-by-colors/{color_code}', [App\Http\Controllers\ColorController::class, 'get_products_by_color'])->name('products.by.colors');
 // Public API: get reviews for a product
 Route::get('/products-reviews/{product_id}', [App\Http\Controllers\ProductionsController::class, 'get_reviews'])->name('products.reviews');
 // Public API: get highlights for a product
@@ -68,6 +75,7 @@ Route::get('/product-color/{product_color_id}', [App\Http\Controllers\ProductCol
 Route::get('/size/{size_id}', [App\Http\Controllers\SizeController::class, 'getSizeById'])->name('sizes.getById');
 //Public API: set order payment method
 Route::post('/orders/set-payment-method/{order_id}', [App\Http\Controllers\OrderController::class, 'setOrderPaymentMethod'])->name('orders.setPaymentMethod');
+//Public API: checkout order
 //API FOR PRODUCT COLOR
 // Public API: get all product colors
 Route::get('/product-colors', [App\Http\Controllers\ProductColorController::class, 'getAllProductColors'])->name('product.colors.getAll');

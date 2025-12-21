@@ -20,8 +20,20 @@ use App\Models\ProductVariant;
 
 class ProductionsController extends Controller
 {
-    public function index(){
-        return view('products.index');
+    public function getProductByID($id){
+        $product = Product::findOrFail($id);
+        return response()->json([
+            'status' => 'success',
+            'data' => $product,
+        ]);
+    }
+
+    public function index_product(Product $product){
+        $products = Product::all();
+        return response()->json([
+            'status' => 'success',
+            'data' => $products,
+        ]);
     }
 
      public function index_category(Category $category){
