@@ -34,6 +34,8 @@ Route::post('/logout', [App\Http\Controllers\RegisterController::class, 'logout'
 // API IN WEBSITE
 // get product by ID
 Route::get('/products/{id}', [App\Http\Controllers\ProductionsController::class, 'getProductByID'])->name('products.getById');
+// get all products' names and ids
+Route::get('/products-names-ids', [App\Http\Controllers\ProductionsController::class, 'getAllProductsNamesId'])->name('products.names.ids');
 // Public API: list all products
 Route::get('/products', [App\Http\Controllers\ProductionsController::class, 'index_product'])->name('products.index');
 // Public API: list products for a category
@@ -60,11 +62,13 @@ Route::get('/product-variants/{product_id}', [App\Http\Controllers\ProductionsCo
 // Public API: add item to cart
 Route::post('/orders/add-to-cart', [App\Http\Controllers\OrderController::class, 'addToCart'])->name('orders.addToCart');
 // Public API update to cart order
-Route::put('/orders/update-cart', [App\Http\Controllers\OrderController::class, 'updateCartItem'])->name('orders.updateCart');
+Route::put('/orders/update-cart/{itemId}', [App\Http\Controllers\OrderController::class, 'updateCartItem'])->name('orders.updateCart');
 //public API remove item from cart
 Route::delete('/orders/remove-from-cart/{order_item_id}', [App\Http\Controllers\OrderController::class, 'removeCartItem'])->name('orders.removeFromCart');
 //Public API apply address to order
 Route::post('/orders/apply-address/{order_id}', [App\Http\Controllers\OrderController::class, 'applyAddress'])->name('orders.applyAddress');
+//Public API get order by id
+Route::get('/orders/{order_id}', [App\Http\Controllers\OrderController::class, 'getOrderById'])->name('orders.getById');
 //Public API: get cart Items
 Route::get('/cart/{user_id}', [App\Http\Controllers\OrderController::class, 'getCartItems'])->name('customer.cart.getItems');
 //Public API get varient by id
@@ -75,10 +79,20 @@ Route::get('/product-color/{product_color_id}', [App\Http\Controllers\ProductCol
 Route::get('/size/{size_id}', [App\Http\Controllers\SizeController::class, 'getSizeById'])->name('sizes.getById');
 //Public API: set order payment method
 Route::post('/orders/set-payment-method/{order_id}', [App\Http\Controllers\OrderController::class, 'setOrderPaymentMethod'])->name('orders.setPaymentMethod');
+//API FOR UPDATE TOTAL PRICE IN ORDER
+//Public API: update order total price
+Route::put('/orders/update-total/{order_id}', [App\Http\Controllers\OrderController::class, 'updateOrderTotalPrice'])->name('orders.updateTotalPrice');
 //Public API: checkout order
+Route::put('/orders/checkout/{order_id}', [App\Http\Controllers\OrderController::class, 'checkoutOrder'])->name('orders.checkout');
+//Public API: post address for order
+Route::put('/orders/update_address/{order_id}', [App\Http\Controllers\OrderController::class, 'postAddressOrder'])->name('orders.updateAddress');
+//PUBLIC API: GET ALL ORDERS
+Route::get('/orders', [App\Http\Controllers\OrderController::class, 'getAllOrders'])->name('orders.getAll');
 //API FOR PRODUCT COLOR
 // Public API: get all product colors
 Route::get('/product-colors', [App\Http\Controllers\ProductColorController::class, 'getAllProductColors'])->name('product.colors.getAll');
+// Public API: update product colors
+Route::put('/product-colors/{product_color_id}', [App\Http\Controllers\ProductColorController::class, 'updateProductColor'])->name('product.colors.update');
 // Public API: create a new product color
 Route::post('/product-colors', [App\Http\Controllers\ProductColorController::class, 'postProductColor'])->name('product.colors.post');
 // Public API: update product color status
@@ -95,9 +109,31 @@ Route::delete('/product-variants/{id}', [App\Http\Controllers\ProductVariantCont
 Route::put('/product-variants/{variant_id}', [App\Http\Controllers\ProductVariantController::class, 'updateProductVariant'])->name('product.variants.update');
 // Public API: post product variant
 Route::post('/product-variants', [App\Http\Controllers\ProductVariantController::class, 'postProductVariant'])->name('product.variants.post');
-
-
+// Public API: get all product
+Route::get('/all-products', [App\Http\Controllers\ProductionsController::class, 'getAllProducts'])->name('products.getAll');
+// Public API: get all categories returne id and name only
+Route::get('/categories-list', [App\Http\Controllers\CategoryCollectionController::class, 'getAllCategoryReturnId'])->name('categories.list');
+// Public API: get all collections return id and name only
+Route::get('/collections-list', [App\Http\Controllers\CategoryCollectionController::class, 'getAllCollectionReturnId'])->name('collections.list');
+// Public API: get category by name
+Route::get('/category-by-name', [App\Http\Controllers\CategoryCollectionController::class, 'getCategoryByname'])->name('categories.getByName');
+// Public API: get collection by name
+Route::get('/collection-by-name', [App\Http\Controllers\CategoryCollectionController::class, 'getCollectionByname'])->name('collections.getByName');
+// Public API: delete product
+Route::delete('/products/{product_id}', [App\Http\Controllers\ProductionsController::class, 'deleteProduct'])->name('products.delete');
+// Public API: update product status
+Route::put('/products/{product_id}/status', [App\Http\Controllers\ProductionsController::class, 'updateProductStatus'])->name('products.updateStatus');
+// Public API: get all product images
+Route::get('/product-images', [App\Http\Controllers\ProductionsController::class, 'getAllProductsImages'])->name('product.images.getAll');
+// Public API: delete product image
+Route::delete('/product-images/{image_id}', [App\Http\Controllers\ProductionsController::class, 'deleteProductImage'])->name('product.images.delete');
+//API FOR ADMIN DASHBOARD
 // API POST FOR ADMIN DASHBOARD
+// Public API: get all categories
+Route::get('/categories', [App\Http\Controllers\CategoryCollectionController::class, 'getAllCategories'])->name('categories.getAll');
+// Public API: get all collections
+Route::get('/collections', [App\Http\Controllers\CategoryCollectionController::class, 'getAllCollections'])->name('collections.getAll');
+// Public API: create a new category
 Route::post('/categories', [App\Http\Controllers\CategoryCollectionController::class, 'postCategory'])->name('categories.post');
 // Public API: create a new collection
 Route::post('/collections', [App\Http\Controllers\CategoryCollectionController::class, 'postCollection'])->name('collections.post');
@@ -107,8 +143,6 @@ Route::post('/products', [App\Http\Controllers\ProductionsController::class, 'po
 Route::post('/product-images', [App\Http\Controllers\ProductionsController::class, 'postProductImage'])->name('product.images.post');
 // Public API: create a new product discount
 Route::post('/product-discounts', [App\Http\Controllers\ProductionsController::class, 'postDicount'])->name('product.discounts.post');
-// Public API: create a new product color
-Route::post('/product-colors', [App\Http\Controllers\ProductionsController::class, 'postProductColor'])->name('product.colors.post');
 // Public API: create a new product FAQ
 Route::post('/product-faqs', [App\Http\Controllers\ProductionsController::class, 'postProductFaq'])->name('product.faqs.post');
 // Public API: create a new product highlight
@@ -138,7 +172,10 @@ Route::put('/categories/{category_id}', [App\Http\Controllers\CategoryCollection
 Route::put('/collections/{collection_id}', [App\Http\Controllers\CategoryCollectionController::class, 'updateCollection'])->name('collections.update');
 //PUbLIC API UPDATE PRODUCT
 Route::put('/products/{product_id}', [App\Http\Controllers\ProductionsController::class, 'updateProduct'])->name('products.update');
-
+//Public API delete category
+Route::delete('/categories/{category_id}', [App\Http\Controllers\CategoryCollectionController::class, 'deleteCategory'])->name('categories.delete');
+//Public API delete collection
+Route::delete('/collections/{collection_id}', [App\Http\Controllers\CategoryCollectionController::class, 'deleteCollection'])->name('collections.delete');
 //API FOR CUSTOMER
 //Public API: get all orders for a user
 Route::get('/orders/{user_id}', [App\Http\Controllers\CustomerController::class, 'getOrder'])->name('customer.orders.get');

@@ -27,7 +27,7 @@ class CollectionRequest extends FormRequest
             'name' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:collections,slug,' . $this->route('collection'),
             'description' => 'nullable|string',
-            'banner_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'banner_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:4096',
         ];
     }
 }

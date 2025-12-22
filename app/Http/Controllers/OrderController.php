@@ -178,6 +178,15 @@ class OrderController extends Controller
         return response()->json(['message' => 'Address applied to order successfully'], 200);
     }
 
+    public function getOrderById($orderId)
+    {
+        $order = Order::findOrFail($orderId);
+        return response()->json([
+            'status' => 'success',
+            'data' => $order,
+        ]);
+    }
+
     public function setOrderPaymentMethod(Request $request, $orderId)
     {
         $request->validate([
@@ -216,6 +225,17 @@ class OrderController extends Controller
         return response()->json(['message' => 'Order checked out successfully'], 200);
     }
 
+    public function updateOrderTotalPrice(Request $request, $orderId)
+    {
+        $request->validate([
+            'shipping_fee' => 'required|numeric|min:0',
+        ]);
+
+        $order = Order::findOrFail($orderId);
+        $order->total_price = $request->input('shipping_fee') + $order->total_price;
+        $order->save();
+    }
+
     public function updateOrderStatus(Request $request, $orderId)
     {
         $request->validate([
@@ -228,4 +248,68 @@ class OrderController extends Controller
 
         return response()->json(['message' => 'Order status updated successfully'], 200);
     }
+
+    public function getAllOrders()
+    {
+        $orders = Order::with([
+            'user',
+            'orderItems.productVariant.color',
+            'orderItems.productVariant.size',
+            // nếu variant có product thì load thêm:
+            // 'orderItems.productVariant.product',
+        ])->get();
+
+        $data = $orders->map(function ($order) {
+            $u = $order->user;
+
+            return [
+                'id' => $order->id,
+                'total_price' => $order->total_price,
+                'status' => $order->status,
+                'created_at' => $order->created_at,
+                'updated_at' => $order->updated_at,
+                'payment_method' => $order->payment_method,
+
+                'shipping_address_line' => $order->shipping_address_line,
+                'shipping_ward' => $order->shipping_ward,
+                'shipping_district' => $order->shipping_district,
+                'shipping_city' => $order->shipping_city,
+                'shipping_country' => $order->shipping_country,
+
+                'user_name' => $u?->name,
+
+                // ✅ QUAN TRỌNG: items lấy từ orderItems
+                'items' => $order->orderItems->map(function ($oi) {
+                    $v = $oi->productVariant;
+
+                    return [
+                        'order_item_id' => $oi->id,
+                        'variant_id' => $v?->id,
+                        'product_id' => $v?->product_id, // ✅ thường product_id nằm trong variant
+                        'name' => $v?->name,             // hoặc $v?->product?->name nếu có relation product
+                        'quantity' => $oi->quantity,
+                        'price' => $oi->price,
+
+                        'color_id' => $v?->color?->id,
+                        'color_name' => $v?->color?->color_name,
+                        'color_code' => $v?->color?->color_code,
+
+                        // ⚠️ main_image bạn đang lấy từ color có thể sai thiết kế,
+                        // nếu main_image nằm ở product thì dùng $v?->product?->main_image
+                        'main_image' => $v?->color?->main_image,
+
+                        'size_id' => $v?->size?->id,
+                        'size_name' => $v?->size?->size_name,
+                    ];
+                })->values(),
+            ];
+        });
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $data,
+        ]);
+    }
+
+
 }

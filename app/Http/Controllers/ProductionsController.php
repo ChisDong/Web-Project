@@ -20,11 +20,25 @@ use App\Models\ProductVariant;
 
 class ProductionsController extends Controller
 {
-    public function getProductByID($id){
-        $product = Product::findOrFail($id);
+    public function getProductByName(Request $request){
+        $name = $request->input('name');
+        $product = Product::where('name', $name)->firstOrFail();
         return response()->json([
             'status' => 'success',
             'data' => $product,
+        ]);
+    }
+    //     $product = Product::findOrFail($id);
+    //     return response()->json([
+    //         'status' => 'success',
+    //         'data' => $product->name,
+    //     ]);
+    // }
+    public function getAllProductsNamesId(){
+        $products = Product::all(['id', 'name']);
+        return response()->json([
+            'status' => 'success',
+            'data' => $products,
         ]);
     }
 
@@ -128,6 +142,32 @@ class ProductionsController extends Controller
         ]);
     }
 
+    public function getAllProducts(){
+        $products = Product::with('category.products', 'collection.products')->get();
+        $data = $products->map(function ($it) {
+            $c = $it->category;
+            $co = $it->collection;
+            return [
+                'id' => $it->id,
+                'name' => $it->name,
+                'slug' => $it->slug,
+                'description' => $it->description,
+                'base_price' => $it->base_price,
+                'discount_percent' => $it->discount_percent,
+                'gender' => $it->gender,
+                'status' => $it->status,
+                'category_id' => $it->category_id,
+                'collection_id' => $it->collection_id,
+                'category_name' => $c?->name,
+                'collection_name' => $co?->name,
+            ];
+        });
+        return response()->json([
+            'status' => 'success',
+            'data' => $data,
+        ]);
+    }
+
     //API POST FOR ADMIN DASHBOARD
 
     public function postProduct(ProductRequest $request){
@@ -165,6 +205,33 @@ class ProductionsController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $productImage,
+        ]);
+    }
+
+    public function getAllProductsImages(){
+        $productImages = ProductImage::with('products')->get();
+        $data = $productImages->map(function ($it) {
+            $p = $it->products;
+            return [
+                'id' => $it->id,
+                'image' => $it->image_url,
+                'product_id' => $it->product_id,
+                'role' => $it->role,
+                'product_name' => $p?->name,
+            ];
+        });
+        return response()->json([
+            'status' => 'success',
+            'data' => $data,
+        ]);
+    }
+
+    public function deleteProductImage($image_id){
+        $productImage = ProductImage::findOrFail($image_id);
+        $productImage->delete();
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Product image deleted successfully',
         ]);
     }
     public function postDicount(ProductDiscountRequest $request){
@@ -219,7 +286,7 @@ class ProductionsController extends Controller
 
     public function putProductStatus($product_id){
         $product = Product::findOrFail($product_id);
-        $product->status = 'inactivate';
+        $product->status = 'deactive';
         $product->save();
         return response()->json([
             'status' => 'success',
@@ -246,6 +313,29 @@ class ProductionsController extends Controller
         $product->description = $data['description'] == null ? $product->description : $data['description'];
         $product->base_price = $data['base_price'] == null ? $product->base_price : $data['base_price'];
         $product->discount_percent = $data['discount_percent'] == null ? $product->discount_percent : $data['discount_percent'];
+        $product->save();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $product,
+        ]);
+    }
+
+    public function deleteProduct($product_id){
+        $product = Product::findOrFail($product_id);
+        $product->delete();
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Product deleted successfully',
+        ]);
+    }
+    public function updateProductStatus(Request $request, $product_id){
+        $data = $request->validate([
+            'status' => 'required|in:active,deactive',
+        ]);
+
+        $product = Product::findOrFail($product_id);
+        $product->status = $data['status'];
         $product->save();
 
         return response()->json([

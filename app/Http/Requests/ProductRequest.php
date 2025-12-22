@@ -32,9 +32,7 @@ class ProductRequest extends FormRequest
             'base_price' => 'required|numeric|min:0',
             'discount_percent' => 'nullable|numeric|min:0|lt:base_price',
             'gender' => 'required|in:male,female,unisex',
-            'status' => 'required|in:active,inactive',
-            'fit_description' => 'nullable|string',
-            'product_information' => 'nullable|string',
+            'status' => 'required|in:active,deactive',
         ];
     }
 }

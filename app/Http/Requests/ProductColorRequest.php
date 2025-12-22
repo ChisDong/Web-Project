@@ -27,7 +27,7 @@ class ProductColorRequest extends FormRequest
             'product_id' => 'required|exists:products,id',
             'color_name' => 'required|string|max:100',
             'color_code' => 'required|string|max:7',
-            'image' => 'requiresd|image|mimes:jpeg,png,jpg,gif|max:4096',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:4096',
         ];
     }
 }
