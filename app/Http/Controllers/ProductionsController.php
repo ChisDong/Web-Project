@@ -35,7 +35,7 @@ class ProductionsController extends Controller
     //     ]);
     // }
     public function getAllProductsNamesId(){
-        $products = Product::all(['id', 'name']);
+        $products = Product::all(['id', 'name', 'base_price']);
         return response()->json([
             'status' => 'success',
             'data' => $products,
@@ -52,19 +52,49 @@ class ProductionsController extends Controller
 
      public function index_category(Category $category){
         $products = $category->products()->get();
+        $data = $products->map(function ($it) {
+            return [
+            "id" => $it->id,
+            "category_id" => $it->category_id,
+            "category_name" => $it->category?->name,
+            "collection_id" => $it->collection_id ?? null,
+            "name" => $it->name,
+            "slug" => $it->slug,
+            "description" => $it->description,
+            "base_price" => $it->base_price,
+            "discount_percent" => $it->discount_percent,
+            "gender" => $it->gender,
+            "status" => $it->status,
+        ];
+    });
         return response()->json([
             'status' => 'success',
-            'data' => $products,
-        ]);
-    }
+            'data' => $data,
+    ]);
+}
 
     public function index_collection(Collection $collection){
         $products = $collection->products()->get();
+        $data = $products->map(function ($it) {
+            return [
+            "id" => $it->id,
+            "category_id" => $it->category_id,
+            "collection_name" => $it->collection?->name,
+            "collection_id" => $it->collection_id ?? null,
+            "name" => $it->name,
+            "slug" => $it->slug,
+            "description" => $it->description,
+            "base_price" => $it->base_price,
+            "discount_percent" => $it->discount_percent,
+            "gender" => $it->gender,
+            "status" => $it->status,
+        ];
+    });
         return response()->json([
             'status' => 'success',
-            'data' => $products,
-        ]);
-    }
+            'data' => $data,
+    ]);
+}
 
     public function get_colors($id){
       $products = Product::with('colors')->findOrFail($id);
@@ -208,6 +238,30 @@ class ProductionsController extends Controller
         ]);
     }
 
+    public function updateImage(Request $request, $image_id){
+        $data = $request->validate([
+            'product_id' => 'sometimes|exists:products,id',
+            'role' => 'sometimes|string|max:50',
+            'image_url' => 'sometimes|image|mimes:jpg,jpeg,png,webp|max:4096',
+        ]);
+        $imagePath = null;
+        if($request->hasFile('image_url')){
+            $imagePath = $request->file('image_url')->store('product_images', 'public');
+            $data['image_url'] = asset('storage/'.$imagePath);
+        }
+
+        $productImage = ProductImage::findOrFail($image_id);
+        $productImage->role = $data['role'] ?? $productImage->role;
+        $productImage->image_url = $data['image_url'] ?? $productImage->image_url;
+        $productImage->product_id = $data['product_id'] ?? $productImage->product_id;
+        $productImage->save();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $productImage,
+        ]);
+    }
+
     public function getAllProductsImages(){
         $productImages = ProductImage::with('products')->get();
         $data = $productImages->map(function ($it) {
@@ -216,6 +270,7 @@ class ProductionsController extends Controller
                 'id' => $it->id,
                 'image' => $it->image_url,
                 'product_id' => $it->product_id,
+                'status' => $it->status,
                 'role' => $it->role,
                 'product_name' => $p?->name,
             ];
@@ -338,6 +393,14 @@ class ProductionsController extends Controller
         $product->status = $data['status'];
         $product->save();
 
+        return response()->json([
+            'status' => 'success',
+            'data' => $product,
+        ]);
+    }
+
+    public function getProductById($product_id){
+        $product = Product::findOrFail($product_id);
         return response()->json([
             'status' => 'success',
             'data' => $product,

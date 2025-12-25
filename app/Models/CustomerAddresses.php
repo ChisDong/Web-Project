@@ -7,11 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class CustomerAddresses extends Model
 {
-    protected $table = 'customer_addresses';
-    protected $primaryKey = 'address_id';
-
-    public $incrementing = true;
-    protected $keyType = 'int';
+    use HasFactory;
     protected $fillable = [
         'customer_id',
         'address_line',

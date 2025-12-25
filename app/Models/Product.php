@@ -41,7 +41,7 @@ class Product extends Model
     }
 
     public function main_image(){
-        return $this->hasOne(ProductImage::class)->where('role', 'main');
+        return $this->belongsTo(ProductImage::class)->where('role', 'main');
     }
 
     public function highlights(){
@@ -52,7 +52,7 @@ class Product extends Model
         return $this->hasMany(ProductFaq::class);
     }
     public function productVariants(){
-        return $this->hasMany(ProductVariant::class);   
+        return $this->hasMany(ProductVariant::class);
     }
 }
 

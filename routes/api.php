@@ -68,7 +68,10 @@ Route::delete('/orders/remove-from-cart/{order_item_id}', [App\Http\Controllers\
 //Public API apply address to order
 Route::post('/orders/apply-address/{order_id}', [App\Http\Controllers\OrderController::class, 'applyAddress'])->name('orders.applyAddress');
 //Public API get order by id
-Route::get('/orders/{order_id}', [App\Http\Controllers\OrderController::class, 'getOrderById'])->name('orders.getById');
+//Public API: get all customer
+Route::get('/customers', [App\Http\Controllers\CustomerController::class, 'getAllCustomer'])->name('customers.getAll');
+//Public API: get order by user id
+Route::get('/orders/{user_id}', [App\Http\Controllers\OrderController::class, 'getOrderByUserId'])->name('orders.getById');
 //Public API: get cart Items
 Route::get('/cart/{user_id}', [App\Http\Controllers\OrderController::class, 'getCartItems'])->name('customer.cart.getItems');
 //Public API get varient by id
@@ -129,6 +132,10 @@ Route::get('/product-images', [App\Http\Controllers\ProductionsController::class
 Route::delete('/product-images/{image_id}', [App\Http\Controllers\ProductionsController::class, 'deleteProductImage'])->name('product.images.delete');
 //API FOR ADMIN DASHBOARD
 // API POST FOR ADMIN DASHBOARD
+// Public API: getAllProductColorsNameIdsbyProductId
+Route::get('/product-colors-name-ids', [App\Http\Controllers\ProductColorController::class, 'getAllProductColorsNameIdsbyProductId'])->name('product.colors.getAllNameIds');
+// Public API: getAllSizesNameIds
+Route::get('/sizes-name-ids', [App\Http\Controllers\SizeController::class, 'getAllSizesNameIds'])->name('sizes.getAllNameIds');
 // Public API: get all categories
 Route::get('/categories', [App\Http\Controllers\CategoryCollectionController::class, 'getAllCategories'])->name('categories.getAll');
 // Public API: get all collections
@@ -165,6 +172,8 @@ Route::put('/collections/{collection_id}/status', [App\Http\Controllers\Category
 Route::put('/products/{product_id}/status', [App\Http\Controllers\ProductionsController::class, 'putProductStatus'])->name('products.updateStatus');
 // PUBLIC API: UPDATE ORDER STATUS
 Route::put('/orders/{order_id}/status', [App\Http\Controllers\OrderController::class, 'updateOrderStatus'])->name('orders.updateStatus');
+// Public API: Update Product Image
+Route::put('/product-images/{image_id}', [App\Http\Controllers\ProductionsController::class, 'updateImage'])->name('product.images.update');
 // thêm mớ API PUT giúp mình điều chỉnh thông tin sản phẩm
 // PUBLIC API UPDATE CATEGORY
 Route::put('/categories/{category_id}', [App\Http\Controllers\CategoryCollectionController::class, 'updateCategory'])->name('categories.update');
@@ -177,12 +186,16 @@ Route::delete('/categories/{category_id}', [App\Http\Controllers\CategoryCollect
 //Public API delete collection
 Route::delete('/collections/{collection_id}', [App\Http\Controllers\CategoryCollectionController::class, 'deleteCollection'])->name('collections.delete');
 //API FOR CUSTOMER
+//Public API: get user info
+Route::get('/user-info/{user_id}', [App\Http\Controllers\CustomerController::class, 'getUserInfo'])->name('customer.user.getInfo');
+//Public API: update user info
+Route::put('/user-info/{user_id}', [App\Http\Controllers\CustomerController::class, 'update'])->name('customer.user.update');
 //Public API: get all orders for a user
 Route::get('/orders/{user_id}', [App\Http\Controllers\CustomerController::class, 'getOrder'])->name('customer.orders.get');
 //Public API: get order details by order ID
 Route::get('/orders/detail/{order_id}', [App\Http\Controllers\CustomerController::class, 'getOrderById'])->name('customer.orders.getById');
 //Public API: cancel an order
-Route::post('/orders/cancel/{order_id}', [App\Http\Controllers\CustomerController::class, 'cancelOrder'])->name('customer.orders.cancel');
+Route::put('/orders/cancel/{order_id}', [App\Http\Controllers\CustomerController::class, 'cancelOrder'])->name('customer.orders.cancel');
 //Public API: get orders by status
 Route::get('/orders/status/{status}', [App\Http\Controllers\CustomerController::class, 'getOrdersByStatus'])->name('customer.orders.status');
 //Public API: get all items not be reviewed
@@ -198,7 +211,7 @@ Route::put('/addresses/{address_id}', [App\Http\Controllers\CustomerController::
 //Public API: delete an address for a user
 Route::delete('/addresses/{address_id}', [App\Http\Controllers\CustomerController::class, 'deleteAddress'])->name('customer.addresses.delete');
 //Public API: set an address as default
-Route::post('/addresses/default/{user_id}/{address_id}', [App\Http\Controllers\CustomerController::class, 'setDefaultAddress'])->name('customer.addresses.setDefault');
+Route::put('/addresses/default/{user_id}/{address_id}', [App\Http\Controllers\CustomerController::class, 'setDefaultAddress'])->name('customer.addresses.setDefault');
 //Public API: get default address for a user
 Route::get('/addresses/default/{user_id}', [App\Http\Controllers\CustomerController::class, 'getDefaultAddress'])->name('customer.addresses.getDefault');
 //Public API: get my reviews
@@ -215,3 +228,14 @@ Route::post('/notifications/read/{notification_id}', [App\Http\Controllers\Custo
 Route::delete('/notifications/clear_read/{notification_id}', [App\Http\Controllers\CustomerController::class, 'clearReadNotifications'])->name('customer.notifications.clearRead');
 //Public API: clear all notifications
 Route::delete('/notifications/clear_all/{user_id}', [App\Http\Controllers\CustomerController::class, 'clearAllNotifications'])->name('customer.notifications.clearAll');
+//Analytic API
+//Public API: count access tokens for a user
+Route::get('/access-tokens/count/{user_id}', [App\Http\Controllers\CustomerController::class, 'countAccessTokens'])->name('customer.accessTokens.count');
+//Public API: count access tokens for authenticated user
+Route::get('/access-tokens', [App\Http\Controllers\CustomerController::class, 'countNumberofAccessTokens'])->name('customer.accessTokens.countAuth');
+//Public API: get all success orders
+Route::get('/success-orders', [App\Http\Controllers\OrderController::class, 'getAllSuccessOrders'])->name('customer.orders.success');
+//Public API: get all canceled orders
+Route::get('/canceled-orders', [App\Http\Controllers\OrderController::class, 'getAllCanceledOrders'])->name('customer.orders.canceled');
+//Public API: get all access tokens
+Route::get('/all-access-tokens', [App\Http\Controllers\CustomerController::class, 'getAllAccessTokens'])->name('customer.accessTokens.getAll');

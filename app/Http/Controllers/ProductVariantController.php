@@ -9,10 +9,31 @@ class ProductVariantController extends Controller
 {
     //Public function get all product variants
     public function getAllProductVariants(){
-        $productVariants = ProductVariant::all();
+        $productVariants = ProductVariant::with('product', 'color', 'size')->get();
+        $data = $productVariants->map(function ($item) {
+            $p = $item->product;
+            $c = $item->color;
+            $s = $item->size;
+            return [
+                'id' => $item->id,
+                'product_id' => $item->product_id,
+                'color_id' => $item->color_id,
+                'size_id' => $item->size_id,
+                'sku' => $item->sku,
+                'price' => $item->price,
+                'stock' => $item->stock,
+                'weight' => $item->weight,
+                'status' => $item->status,
+                'product_name' => $p?->name,
+                'product_price' => $p?->base_price,
+                'color' => $c?->color_name,
+                'size_id' => $s?->id,
+                'size_name' => $s?->size_name,
+            ];
+        });
         return response()->json([
             'status' => 'success',
-            'data' => $productVariants,
+            'data' => $data,
         ]);
     }
     //Public function change product variant status
@@ -22,7 +43,7 @@ class ProductVariantController extends Controller
         if (!$productVariant) {
             return response()->json(['status' => 'error', 'message' => 'Product variant not found'], 404);
         }
-        $productVariant->status = 'deactivate';
+        $productVariant->status = 'deactive';
         $productVariant->save();
         return response()->json(['status' => 'success', 'data' => $productVariant]);
     }
@@ -41,20 +62,22 @@ class ProductVariantController extends Controller
     {
         $productVariant = ProductVariant::findOrFail($variant_id);
         $data = $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'variant_name' => 'required|string|max:255',
-            'sku' => 'required|string|max:100|unique:product_variants,sku,' . $variant_id,
-            'price' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:0',
-            'weight' => 'required|numeric|min:0',
+            'product_id' => 'nullable|exists:products,id',
+            'color_id' => 'nullable|exists:product_colors,id',
+            'size_id' => 'nullable|exists:sizes,id',
+            'sku' => 'nullable|string|max:100|unique:product_variants,sku,' . $variant_id,
+            'price' => 'nullable|numeric|min:0',
+            'stock' => 'nullable|integer|min:0',
+            'weight' => 'nullable|numeric|min:0',
         ]);
 
-        $productVariant->product_id = $data['product_id'] == null ? $productVariant->product_id : $data['product_id'];
-        $productVariant->variant_name = $data['variant_name'] == null ? $productVariant->variant_name : $data['variant_name'];
-        $productVariant->sku = $data['sku'] == null ? $productVariant->sku : $data['sku'];
-        $productVariant->price = $data['price'] == null ? $productVariant->price : $data['price'];
-        $productVariant->stock = $data['stock'] == null ? $productVariant->stock : $data['stock'];
-        $productVariant->weight = $data['weight'] == null ? $productVariant->weight : $data['weight'];
+        $productVariant->product_id = $data['product_id'] ?? $productVariant->product_id;
+        $productVariant->color_id = $data['color_id'] ?? $productVariant->color_id;
+        $productVariant->size_id = $data['size_id'] ?? $productVariant->size_id;
+        $productVariant->sku = $data['sku'] ?? $productVariant->sku;
+        $productVariant->price = $data['price'] ?? $productVariant->price;
+        $productVariant->stock = $data['stock'] ?? $productVariant->stock;
+        $productVariant->weight = $data['weight'] ?? $productVariant->weight;
         $productVariant->save();
 
         return response()->json([
@@ -68,7 +91,8 @@ class ProductVariantController extends Controller
     {
         $data = $request->validate([
             'product_id' => 'required|exists:products,id',
-            'variant_name' => 'required|string|max:255',
+            'color_id' => 'required|exists:product_colors,id',
+            'size_id' => 'required|exists:sizes,id',
             'sku' => 'required|string|max:100|unique:product_variants,sku',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:0',

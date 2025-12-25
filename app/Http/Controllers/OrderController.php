@@ -178,9 +178,9 @@ class OrderController extends Controller
         return response()->json(['message' => 'Address applied to order successfully'], 200);
     }
 
-    public function getOrderById($orderId)
+    public function getOrderByUserId($userId)
     {
-        $order = Order::findOrFail($orderId);
+        $order = Order::where('user_id', $userId)->where('status', 'pending')->firstOrFail();
         return response()->json([
             'status' => 'success',
             'data' => $order,
@@ -308,6 +308,25 @@ class OrderController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $data,
+        ]);
+
+    }
+
+    public function getAllSuccessOrders(){
+        $orders = Order::where('status', 'completed')->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $orders,
+        ]);
+    }
+
+    public function getAllCanceledOrders(){
+        $orders = Order::where('status', 'cancelled')->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $orders,
         ]);
     }
 

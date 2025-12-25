@@ -106,20 +106,20 @@ class CategoryCollectionController extends Controller
         $data = $request->validate([
             'name' => 'sometimes|string|max:255',
             'description' => 'sometimes|string',
-            'slug' => 'sometimes|in:active,deactivate',
-            'image' => 'sometimes|image|max:4086',
+            'slug' => 'string|max:255|unique:categories,slug,' . $collection_id,
+            'banner' => 'sometimes|image|max:4086',
         ]);
         $imagePath = null;
 
-        if($request->hasFile('image')){
-            $imagePath = $request->file('image')->store('collection_images', 'public');
+        if($request->hasFile('banner')){
+            $imagePath = $request->file('banner')->store('collection_images', 'public');
         }
 
         $collection = Collection::findOrFail($collection_id);
         $collection->name = $data['name'] ?? $collection->name;
         $collection->description = $data['description'] ?? $collection->description;
         $collection->slug = $data['slug'] ?? $collection->slug;
-        $collection->image = $imagePath ? asset('storage/'.$imagePath) : $collection->image;
+        $collection->banner = $imagePath ? asset('storage/'.$imagePath) : $collection->banner;
         $collection->save();
 
         return response()->json([

@@ -13,6 +13,7 @@ class Collection extends Model
         'slug',
         'description',
         'status',
+        'banner',
     ];
 
     public function products(){

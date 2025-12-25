@@ -39,7 +39,7 @@ class User extends Authenticatable
         return $this->hasMany(ProductReview::class);
     }
     public function addresses(){
-        return $this->hasMany(CustomerAddresses::class);
+        return $this->hasMany(CustomerAddresses::class ,'customer_id','id');
     }
     public function notifications(){
         return $this->hasMany(Notifications::class);

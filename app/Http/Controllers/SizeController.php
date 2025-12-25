@@ -14,4 +14,12 @@ class SizeController extends Controller
             'data' => $size,
         ]);
     }
+
+    public function getAllSizesNameIds(){
+        $sizes = Sizes::all('id', 'size_name');
+        return response()->json([
+            'status' => 'success',
+            'data' => $sizes,
+        ]);
+    }
 }

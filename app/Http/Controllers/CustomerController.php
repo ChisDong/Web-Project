@@ -15,6 +15,7 @@ use App\Models\ProductVariant;
 use App\Models\ProductReview;
 use App\Models\CustomerAddresses;
 use App\Models\Notifications;
+use App\Models\PersonalAccessToken;
 use Illuminate\Support\Facades\DB;
 class CustomerController extends Controller
 {
@@ -26,25 +27,43 @@ class CustomerController extends Controller
     }
 
     //update profile
-    public function update(Request $request)
+    public function getAllCustomer()
+    {
+        $users = User::all();
+        return response()->json($users);
+    }
+    public function getUserInfo($user_id)
+    {
+        $user = User::find($user_id);
+        if (!$user) {
+            return response()->json(['error' => 'User not found'], 404);
+        }
+        return response()->json($user);
+    }
+
+    public function update(Request $request, $user_id)
     {
         /** @var User $user */
         // ensure we have a concrete User model instance (not a nullable Authenticatable)
-        $user = User::findOrFail(Auth::id());
+        $user = User::findOrFail($user_id);
 
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:255',
+            'password' => 'nullable|string|min:8|confirmed',
         ]);
 
         // assign attributes explicitly
-        $user->name = $data['name'];
-        $user->phone = $data['phone'] ?? null;
-        $user->address = $data['address'] ?? null;
+        $user->name = $data['name'] ?? null ? $data['name'] : $user->name;
+        $user->phone = $data['phone'] ?? null ? $data['phone'] : $user->phone;
+        $user->address = $data['address'] ?? null ? $data['address'] : $user->address;
+        if (!empty($data['password'])) {
+            $user->password = Hash::make($data['password']);
+        }
         $user->save();
 
-        return redirect()->route('profile.edit')->with('message', 'Cập nhật thông tin thành công.');
+        return response()->json(['message' => 'User information updated successfully']);
     }
     //8. GET /api/orders
     public function getOrder($user_id)
@@ -63,13 +82,25 @@ class CustomerController extends Controller
     //9. GET /api/orders/{order_id} -- mới lấy chi tiết hoá đơn gồm các thông tin thông thường thôi, chưa lấy các thông tin liên kết
     public function getOrderById($order_id)
     {
-        $items = OrderItems::where('order_id', $order_id)->get();
+        $items = OrderItems::with('productVariant')->where('order_id', $order_id)->get();
+        $data = $items->map(function ($it) {
+            $p = $it->productVariant;
+            $c = $p?->color;
+            return [
+                'id' => $it->order_id,
+                'variant_id' => $it->variant_id,
+                'quantity' => $it->quantity,
+                'price' => $it->price,
+                'sku' => $p?->sku,
+                'main_image' => $c?->main_image,
+            ];
+        });
 
         if ($items->isEmpty()) {
             return response()->json(['error' => 'Order not found'], 404);
         }
 
-        return response()->json($items);
+        return response()->json($data);
     }
     //10.POST /api/orders/cancel/{order_id}
     public function cancelOrder($order_id){
@@ -223,11 +254,21 @@ class CustomerController extends Controller
     //NHÓM 5 — REVIEWS (ĐÁNH GIÁ)
     // 21. GET /api/reviews/mine
     public function getMyReviews($user_id){
-        $reviews = ProductReview::where('user_id', $user_id)->get();
+        $reviews = ProductReview::with('products')->where('user_id', $user_id)->get();
         if ($reviews->isEmpty()) {
             return response()->json(['error' => 'No reviews found'], 404);
         }
-        return response()->json($reviews);
+        $data = $reviews->map(function ($rev) {
+            $p = $rev->products;
+            return [
+                'id' => $rev->id,
+                'product_id' => $rev->product_id,
+                'rating' => $rev->rating,
+                'comment' => $rev->comment,
+                'product_name' => $p?->name,
+            ];
+        });
+        return response()->json($data);
     }
     // 22. POST /api/reviews/{product_id} -- 12 đã làm ở trên trong phần review order items
     // 23. PUT /api/reviews/{review_id}
@@ -332,6 +373,30 @@ class CustomerController extends Controller
         }
 
         return response()->json(['message' => 'All notifications cleared'], 200);
+    }
+
+    public function countAccessTokens($user_id){
+        $user = PersonalAccessToken::where('tokenable_id', $user_id)->get();
+        if($user->isEmpty()){
+            return response()->json(['error' => 'User not found'], 404);
+        }
+        $count = $user->count();
+        return response()->json(['access_token_count' => $count], 200);
+    }
+
+    public function getAllAccessTokens(){
+        $personalAccessTokens = PersonalAccessToken::all();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $personalAccessTokens
+        ], 200);
+    }
+
+    public function countNumberofAccessTokens(){
+      $personalAccessTokens = PersonalAccessToken::all();
+      $count = $personalAccessTokens->count();
+      return response()->json(['access_token_count' => $count], 200);
     }
     //NHÓM 7 — PAYMENT METHODS
     // 28. GET /api/vouchers
